@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source ${DIR}/../configs.sh
+source ${DIR}/../deps/configs.sh
 
 NSERVERS=2
 QPS=1200
