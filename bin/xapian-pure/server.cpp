@@ -78,14 +78,6 @@ void Server::processRequest() {
 
         if (++doccount == MAX_DOC_COUNT) break;
     }
-    //system("sudo cpupower -c 6 frequency-set -f 1400MHz");
-    //system("sudo cpupower -c 8 frequency-set -f 1400MHz");
-    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
-    //G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
-    //fprintf(F, "powersave");
-    //fprintf(G, "powersave");
-    //fclose(F);
-    //fclose(G);
 
     tBenchSendResp(reinterpret_cast<void*>(res), resLen);
 }
