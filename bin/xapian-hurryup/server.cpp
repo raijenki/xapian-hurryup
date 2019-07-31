@@ -4,12 +4,27 @@
 
 #include <assert.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/time.h>
 
 #include "server.h"
 #include "tbench_server.h"
 
+#define INTERVAL 4000
+
 using namespace std;
 
+bool sched = false;
+void perfActive(void) {
+    FILE *G;
+    sched = true;
+    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
+    G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
+    //fprintf(F, "performance");
+    fprintf(G, "performance");
+    //fclose(F);
+    fclose(G);
+}
 unsigned long Server::numReqsToProcess = 0;
 volatile atomic_ulong Server::numReqsProcessed(0);
 pthread_barrier_t Server::barrier;
@@ -50,10 +65,17 @@ void Server::_run() {
 }
 
 void Server::processRequest() {
+    struct itimerval it_val;
+    if(signal(SIGALRM, (void (*)(int)) perfActive) == SIG_ERR) {
+    	perror("Unable to catch SIGALARM");
+    	exit(1);
+    }
+    it_val.it_value.tv_sec = (INTERVAL/1000);
+    it_val.it_value.tv_usec = (INTERVAL*1000) % 1000000;
     const unsigned MAX_TERM_LEN = 256;
     char term[MAX_TERM_LEN];
     void* termPtr;
-    FILE *F;
+    //FILE *F;
     FILE *G;
     size_t len = tBenchRecvReq(&termPtr);
     memcpy(reinterpret_cast<void*>(term), termPtr, len);
@@ -63,22 +85,27 @@ void Server::processRequest() {
     Xapian::Query query = parser.parse_query(term, flags);
     enquire.set_query(query);
    
-    F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
-    G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
-    fprintf(F, "performance");
-    fprintf(G, "performance");
-    fclose(F);
-    fclose(G);
-   
+      
     //system("sudo cpupower -c 6 frequency-set -f 3.0GHz");
-    //system("sudo cpupower -c 8 frequency-set -f 3.0GHz");
+    //system("sudo cpupower -c 8 frequency-set -f 3.0GHz");a
+    if(setitimer(ITIMER_REAL, &it_val, NULL) == -1) {
+     perror("error calling setitimer()");
+     exit(1);
+    }
+
     mset = enquire.get_mset(0, MSET_SIZE);
-    F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
+    if (sched) {
+    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
     G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
-    fprintf(F, "userspace");
+    //fprintf(F, "userspace");
     fprintf(G, "userspace");
-    fclose(F);
+    //fclose(F);
     fclose(G);
+    sched = false;
+    }
+    else {
+	setitimer(ITIMER_REAL, 0, NULL);
+    }
 
     const unsigned MAX_RES_LEN = 1 << 20;
     char res[MAX_RES_LEN];

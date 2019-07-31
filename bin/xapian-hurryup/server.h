@@ -5,6 +5,8 @@
 #include <pthread.h>
 #include <xapian.h>
 #include <vector>
+#include <signal.h>
+#include <sys/time.h>
 
 class Server {
     private:
@@ -22,17 +24,17 @@ class Server {
         Xapian::MSet mset;
 
         int id;
-
+	bool sched;
         void _run();
         void processRequest();
-
+	
     public:
         Server(int id, std::string dbPath);
         ~Server();
-
-        static void* run(void* v);
+	static void* run(void* v);
         static void init(unsigned long _numReqsToProcess, unsigned numServers);
         static void fini();
 };
+void perfActive();
 
 #endif

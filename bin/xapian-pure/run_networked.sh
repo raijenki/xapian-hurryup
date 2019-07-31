@@ -3,8 +3,8 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source ${DIR}/../deps/configs.sh
 
-NSERVERS=1
-QPS=400
+NSERVERS=2
+QPS=2500
 WARMUPREQS=1000
 REQUESTS=80000
 
@@ -12,7 +12,7 @@ TBENCH_MAXREQS=${REQUESTS} TBENCH_WARMUPREQS=${WARMUPREQS} \
     chrt -r 99 ./xapian_networked_server -n ${NSERVERS} -d ${DATA_ROOT}/xapian/wiki \
     -r 1000000000 &
 echo $! > server.pid
-taskset -apc 12 $(cat server.pid)
+taskset -apc 10,12 $(cat server.pid)
 sleep 5 # Wait for server to come up
 
 TBENCH_QPS=${QPS} TBENCH_MINSLEEPNS=10000 TBENCH_CLIENT_THREADS=2 \
