@@ -66,10 +66,6 @@ void Server::_run() {
 
 void Server::processRequest() {
     struct itimerval it_val;
-    if(signal(SIGALRM, (void (*)(int)) perfActive) == SIG_ERR) {
-    	perror("Unable to catch SIGALARM");
-    	exit(1);
-    }
     it_val.it_value.tv_sec = (INTERVAL/1000);
     it_val.it_value.tv_usec = (INTERVAL*1000) % 1000000;
     const unsigned MAX_TERM_LEN = 256;
@@ -84,7 +80,11 @@ void Server::processRequest() {
     unsigned int flags = Xapian::QueryParser::FLAG_DEFAULT;
     Xapian::Query query = parser.parse_query(term, flags);
     enquire.set_query(query);
-   
+    if(signal(SIGALRM, (void (*)(int)) perfActive) == SIG_ERR) {
+    	perror("Unable to catch SIGALARM");
+    	exit(1);
+    }
+  
       
     //system("sudo cpupower -c 6 frequency-set -f 3.0GHz");
     //system("sudo cpupower -c 8 frequency-set -f 3.0GHz");a
@@ -95,6 +95,7 @@ void Server::processRequest() {
 
     mset = enquire.get_mset(0, MSET_SIZE);
     if (sched) {
+printf("Changin cores");
     //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
     G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
     //fprintf(F, "userspace");
