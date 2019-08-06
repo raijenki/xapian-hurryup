@@ -1,7 +1,8 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
-
+#include <sys/types.h>
+#include <sys/syscall.h>
 #include <assert.h>
 #include <unistd.h>
 #include <signal.h>
@@ -10,21 +11,11 @@
 #include "server.h"
 #include "tbench_server.h"
 
-#define INTERVAL 4000
+#define INTERVAL 2000
 
 using namespace std;
+FILE *G;
 
-bool sched = false;
-void perfActive(void) {
-    FILE *G;
-    sched = true;
-    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
-    G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
-    //fprintf(F, "performance");
-    fprintf(G, "performance");
-    //fclose(F);
-    fclose(G);
-}
 unsigned long Server::numReqsToProcess = 0;
 volatile atomic_ulong Server::numReqsProcessed(0);
 pthread_barrier_t Server::barrier;
@@ -53,6 +44,8 @@ Server::Server(int id, string dbPath)
 Server::~Server() {
 }
 
+
+
 void Server::_run() {
     pthread_barrier_wait(&barrier);
 
@@ -64,15 +57,27 @@ void Server::_run() {
     }
 }
 
+bool sched;
+void perfActive(void) {
+    sched = true;
+    printf("alarm was dispared");
+    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
+    G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
+    //fprintf(F, "performance");
+    fprintf(G, "performance");
+    //fclose(F);
+    fclose(G);
+    //return 1;
+}
+
+
 void Server::processRequest() {
-    struct itimerval it_val;
-    it_val.it_value.tv_sec = (INTERVAL/1000);
-    it_val.it_value.tv_usec = (INTERVAL*1000) % 1000000;
     const unsigned MAX_TERM_LEN = 256;
     char term[MAX_TERM_LEN];
     void* termPtr;
+    //pid_t x = syscall(__NR_gettid);
+    //printf("%d\n", x);
     //FILE *F;
-    FILE *G;
     size_t len = tBenchRecvReq(&termPtr);
     memcpy(reinterpret_cast<void*>(term), termPtr, len);
     term[len] = '\0';
@@ -80,33 +85,28 @@ void Server::processRequest() {
     unsigned int flags = Xapian::QueryParser::FLAG_DEFAULT;
     Xapian::Query query = parser.parse_query(term, flags);
     enquire.set_query(query);
-    if(signal(SIGALRM, (void (*)(int)) perfActive) == SIG_ERR) {
+    signal(SIGALRM, (void(*)(int)) perfActive);
+    /*if(signal(SIGALRM, (void(*)(int)) perfActive) == SIG_ERR) {
     	perror("Unable to catch SIGALARM");
     	exit(1);
-    }
-  
+    }*/
+     struct itimerval it_val;
+     it_val.it_value.tv_sec = (INTERVAL/1000);
+     it_val.it_value.tv_usec = (INTERVAL*1000) % 1000000;
+     it_val.it_interval = it_val.it_value;
+     sched = false;
+
       
     //system("sudo cpupower -c 6 frequency-set -f 3.0GHz");
     //system("sudo cpupower -c 8 frequency-set -f 3.0GHz");a
-    if(setitimer(ITIMER_REAL, &it_val, NULL) == -1) {
-     perror("error calling setitimer()");
-     exit(1);
-    }
-
+     setitimer(ITIMER_REAL, &it_val, NULL);
+     //perror("error calling setitimer()");
+    // exit(1);
+   // }
+    
+    //alarm(INTERVAL/1000);
     mset = enquire.get_mset(0, MSET_SIZE);
-    if (sched) {
-printf("Changin cores");
-    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
-    G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
-    //fprintf(F, "userspace");
-    fprintf(G, "userspace");
-    //fclose(F);
-    fclose(G);
-    sched = false;
-    }
-    else {
-	setitimer(ITIMER_REAL, 0, NULL);
-    }
+       
 
     const unsigned MAX_RES_LEN = 1 << 20;
     char res[MAX_RES_LEN];
@@ -122,6 +122,24 @@ printf("Changin cores");
 
         if (++doccount == MAX_DOC_COUNT) break;
     }
+	printf(sched ? "true " : "false ");
+
+	if (sched == true) {
+   	 //printf("Changin cores");
+    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
+    	G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
+    //fprintf(F, "userspace");
+    fprintf(G, "powersave");
+    //fclose(F);
+   	 fclose(G);
+    	sched = false;
+    	}
+    else {
+	//printf("debug");
+	setitimer(ITIMER_REAL, 0, 0);
+	//setitimer(ITIMER_REAL, 0, NULL);
+    }
+
     //system("sudo cpupower -c 6 frequency-set -f 1400MHz");
     //system("sudo cpupower -c 8 frequency-set -f 1400MHz");
     //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
@@ -132,8 +150,8 @@ printf("Changin cores");
     //fclose(G);
 
     tBenchSendResp(reinterpret_cast<void*>(res), resLen);
-}
 
+    }
 void* Server::run(void* v) {
     Server* server = static_cast<Server*> (v);
     server->_run();

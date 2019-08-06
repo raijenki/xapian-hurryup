@@ -15,12 +15,12 @@ echo $! > server.pid
 taskset -apc 12 $(cat server.pid)
 sleep 5 # Wait for server to come up
 
-TBENCH_QPS=${QPS} TBENCH_CLIENT_THREADS=2 TBENCH_MINSLEEPNS=100000 \
+TBENCH_QPS=${QPS} TBENCH_MINSLEEPNS=10000 TBENCH_CLIENT_THREADS=2 \
     TBENCH_TERMS_FILE=${DATA_ROOT}/xapian/terms.in \
     chrt -r 99 ./xapian_networked_client &
 
 echo $! > client.pid
-#taskset -apc 13,15 $(cat client.pid)
+#taskset -apc 3,4 $(cat client.pid)
 
 
 
