@@ -4,9 +4,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source ${DIR}/../deps/configs.sh
 
 NSERVERS=1
-QPS=1400
+QPS=1300
 WARMUPREQS=1000
-REQUESTS=100000
+REQUESTS=50000
 
 TBENCH_MAXREQS=${REQUESTS} TBENCH_WARMUPREQS=${WARMUPREQS} \
     chrt -r 99 ./xapian_networked_server -n ${NSERVERS} -d ${DATA_ROOT}/xapian/wiki \

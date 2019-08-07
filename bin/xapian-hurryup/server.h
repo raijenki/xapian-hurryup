@@ -23,20 +23,20 @@ class Server {
         Xapian::QueryParser parser;
         pthread_mutex_t lock;
         Xapian::MSet mset;
-
+	//bool sched;
         int id;
         void _run();
         void processRequest();
 	public:
         Server(int id, std::string dbPath);
         ~Server();
-	bool sched;	
+		
 	static void* run(void* v);
         static void init(unsigned long _numReqsToProcess, unsigned numServers);
         static void fini();
 	};
 void perfActive();	
-
+extern bool sched;
 
 	//bool sched;
 

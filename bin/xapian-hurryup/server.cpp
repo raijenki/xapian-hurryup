@@ -11,10 +11,9 @@
 #include "server.h"
 #include "tbench_server.h"
 
-#define INTERVAL 2000
+#define INTERVAL 2
 
 using namespace std;
-FILE *G;
 
 unsigned long Server::numReqsToProcess = 0;
 volatile atomic_ulong Server::numReqsProcessed(0);
@@ -59,8 +58,9 @@ void Server::_run() {
 
 bool sched;
 void perfActive(void) {
+	FILE *G;
     sched = true;
-    printf("alarm was dispared");
+    //printf("alarm was dispared");
     //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
     G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
     //fprintf(F, "performance");
@@ -90,6 +90,7 @@ void Server::processRequest() {
     	perror("Unable to catch SIGALARM");
     	exit(1);
     }*/
+    FILE *G;
      struct itimerval it_val;
      it_val.it_value.tv_sec = (INTERVAL/1000);
      it_val.it_value.tv_usec = (INTERVAL*1000) % 1000000;
@@ -106,7 +107,22 @@ void Server::processRequest() {
     
     //alarm(INTERVAL/1000);
     mset = enquire.get_mset(0, MSET_SIZE);
-       
+ 	if (sched == true) {
+   	 //printf("Changin cores");
+    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
+    	G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
+    //fprintf(F, "userspace");
+    	fprintf(G, "ondemand");
+    //fclose(F);
+   	 fclose(G);
+    	sched = false;
+    	}
+    else {
+	//printf("debug");
+	setitimer(ITIMER_REAL, 0, 0);
+	//setitimer(ITIMER_REAL, 0, NULL);
+    }
+      
 
     const unsigned MAX_RES_LEN = 1 << 20;
     char res[MAX_RES_LEN];
@@ -122,23 +138,8 @@ void Server::processRequest() {
 
         if (++doccount == MAX_DOC_COUNT) break;
     }
-	printf(sched ? "true " : "false ");
+	// printf(sched ? "true " : "false ");
 
-	if (sched == true) {
-   	 //printf("Changin cores");
-    //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
-    	G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
-    //fprintf(F, "userspace");
-    fprintf(G, "powersave");
-    //fclose(F);
-   	 fclose(G);
-    	sched = false;
-    	}
-    else {
-	//printf("debug");
-	setitimer(ITIMER_REAL, 0, 0);
-	//setitimer(ITIMER_REAL, 0, NULL);
-    }
 
     //system("sudo cpupower -c 6 frequency-set -f 1400MHz");
     //system("sudo cpupower -c 8 frequency-set -f 1400MHz");
