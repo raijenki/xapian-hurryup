@@ -7,17 +7,19 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/time.h>
-
+#include <pthread.h>
 #include "server.h"
 #include "tbench_server.h"
 
-#define INTERVAL 2
+#define INTERVAL 3
 
 using namespace std;
 
 unsigned long Server::numReqsToProcess = 0;
 volatile atomic_ulong Server::numReqsProcessed(0);
 pthread_barrier_t Server::barrier;
+pthread_t hurryup;
+bool sched[2] = { false, false };
 
 Server::Server(int id, string dbPath) 
     : db(dbPath)
@@ -56,11 +58,13 @@ void Server::_run() {
     }
 }
 
-bool sched;
-void perfActive(void) {
-	FILE *G;
+//bool sched;
+void* hurryScheduler(void* v) {
+	printf("teste\noioioi");
+	
+/*	FILE *G;
     sched = true;
-    //printf("alarm was dispared");
+    printf("alarm was dispared");
     //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
     G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
     //fprintf(F, "performance");
@@ -68,8 +72,8 @@ void perfActive(void) {
     //fclose(F);
     fclose(G);
     //return 1;
+*/
 }
-
 
 void Server::processRequest() {
     const unsigned MAX_TERM_LEN = 256;
@@ -85,29 +89,44 @@ void Server::processRequest() {
     unsigned int flags = Xapian::QueryParser::FLAG_DEFAULT;
     Xapian::Query query = parser.parse_query(term, flags);
     enquire.set_query(query);
-    signal(SIGALRM, (void(*)(int)) perfActive);
+    //signal(SIGALRM, (void(*)(int)) perfActive);
     /*if(signal(SIGALRM, (void(*)(int)) perfActive) == SIG_ERR) {
     	perror("Unable to catch SIGALARM");
     	exit(1);
     }*/
-    FILE *G;
-     struct itimerval it_val;
+    //FILE *G;
+/*     struct itimerval it_val;
      it_val.it_value.tv_sec = (INTERVAL/1000);
      it_val.it_value.tv_usec = (INTERVAL*1000) % 1000000;
      it_val.it_interval = it_val.it_value;
      sched = false;
-
+*/
       
     //system("sudo cpupower -c 6 frequency-set -f 3.0GHz");
     //system("sudo cpupower -c 8 frequency-set -f 3.0GHz");a
-     setitimer(ITIMER_REAL, &it_val, NULL);
+     //setitimer(ITIMER_REAL, &it_val, NULL);
      //perror("error calling setitimer()");
     // exit(1);
    // }
     
     //alarm(INTERVAL/1000);
     mset = enquire.get_mset(0, MSET_SIZE);
- 	if (sched == true) {
+    const unsigned MAX_RES_LEN = 1 << 20;
+    char res[MAX_RES_LEN];
+
+    unsigned resLen = 0;
+    unsigned doccount = 0;
+    const unsigned MAX_DOC_COUNT = 25; // up to 25 results per page
+    for (auto it = mset.begin(); it != mset.end(); ++it) {
+        std::string desc = it.get_document().get_description();
+        resLen += desc.size();
+        assert(resLen <= MAX_RES_LEN);
+        memcpy(reinterpret_cast<void*>(&res[resLen]), desc.c_str(), desc.size());
+
+        if (++doccount == MAX_DOC_COUNT) break;
+    }
+	// printf(sched ? "true " : "false ");
+ /*	if (sched == true) {
    	 //printf("Changin cores");
     //F = fopen("/sys/devices/system/cpu/cpu10/cpufreq/scaling_governor", "w");
     	G = fopen("/sys/devices/system/cpu/cpu12/cpufreq/scaling_governor", "w");
@@ -124,21 +143,6 @@ void Server::processRequest() {
     }
       
 
-    const unsigned MAX_RES_LEN = 1 << 20;
-    char res[MAX_RES_LEN];
-
-    unsigned resLen = 0;
-    unsigned doccount = 0;
-    const unsigned MAX_DOC_COUNT = 25; // up to 25 results per page
-    for (auto it = mset.begin(); it != mset.end(); ++it) {
-        std::string desc = it.get_document().get_description();
-        resLen += desc.size();
-        assert(resLen <= MAX_RES_LEN);
-        memcpy(reinterpret_cast<void*>(&res[resLen]), desc.c_str(), desc.size());
-
-        if (++doccount == MAX_DOC_COUNT) break;
-    }
-	// printf(sched ? "true " : "false ");
 
 
     //system("sudo cpupower -c 6 frequency-set -f 1400MHz");
@@ -149,12 +153,13 @@ void Server::processRequest() {
     //fprintf(G, "powersave");
     //fclose(F);
     //fclose(G);
-
+*/
     tBenchSendResp(reinterpret_cast<void*>(res), resLen);
 
     }
 void* Server::run(void* v) {
     Server* server = static_cast<Server*> (v);
+    pthread_create(&hurryup, NULL, hurryScheduler, NULL);
     server->_run();
     return NULL;
 }

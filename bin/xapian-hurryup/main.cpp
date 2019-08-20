@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     Server** servers = new Server* [numServers];
     for (unsigned i = 0; i < numServers; i++)
         servers[i] = new Server(i, dbPath);
-
+   
     pthread_t* threads = NULL;
     if (numServers > 1) {
         threads = new pthread_t [numServers - 1];

@@ -30,14 +30,14 @@ class Server {
 	public:
         Server(int id, std::string dbPath);
         ~Server();
-		
+	
 	static void* run(void* v);
         static void init(unsigned long _numReqsToProcess, unsigned numServers);
         static void fini();
 	};
-void perfActive();	
-extern bool sched;
-
+void* hurryScheduler(void* v);	
+extern bool sched[2];
+extern pthread_t hurryup;
 	//bool sched;
 
 #endif
