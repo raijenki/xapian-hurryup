@@ -37,6 +37,7 @@ class Server {
 	};
 void* hurryScheduler(void* v);	
 extern bool sched[2];
+extern bool running;
 extern pthread_t hurryup;
 	//bool sched;
 

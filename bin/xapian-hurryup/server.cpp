@@ -1,3 +1,10 @@
+#include <asm/unistd.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <fcntl.h>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -10,8 +17,13 @@
 #include <pthread.h>
 #include "server.h"
 #include "tbench_server.h"
+#include <sched.h>
+#define _GNU_SOURCE 1
+#define IA32_PERF_STATUS 0x198      //only read
+#define IA32_PERF_CTL 0x199         ///only write
+#define UNCORE_FREQ 0x620
 
-#define INTERVAL 3
+
 
 using namespace std;
 
@@ -20,6 +32,7 @@ volatile atomic_ulong Server::numReqsProcessed(0);
 pthread_barrier_t Server::barrier;
 pthread_t hurryup;
 bool sched[2] = { false, false };
+bool running = true;
 
 Server::Server(int id, string dbPath) 
     : db(dbPath)
@@ -60,7 +73,30 @@ void Server::_run() {
 
 //bool sched;
 void* hurryScheduler(void* v) {
-	printf("teste\noioioi");
+    uint64_t maxFreq = 0x1a00;
+    uint64_t defaultFreq = 0x1200;
+    cpu_set_t set;
+    CPU_SET(15, &set);
+    int msr_fd = open("/dev/cpu/12/msr", O_RDWR);
+    sched_setaffinity(0, sizeof(set), &set); 
+
+    int schedservers = 2;
+
+	while(running) {    
+        for(int i = 0; i < schedservers; i++) {
+            if(sched[i] == true) {
+   //             printf("Changing freq\N");
+                pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL);
+            }
+            if(sched[i] == false) {
+                //printf("Diminishing freq");
+                pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
+            }
+        }
+    //usleep(500);
+    }
+}
+
 	
 /*	FILE *G;
     sched = true;
@@ -73,7 +109,8 @@ void* hurryScheduler(void* v) {
     fclose(G);
     //return 1;
 */
-}
+
+
 
 void Server::processRequest() {
     const unsigned MAX_TERM_LEN = 256;
@@ -110,7 +147,9 @@ void Server::processRequest() {
    // }
     
     //alarm(INTERVAL/1000);
+    sched[0] = true;
     mset = enquire.get_mset(0, MSET_SIZE);
+    //sched[0] = false;
     const unsigned MAX_RES_LEN = 1 << 20;
     char res[MAX_RES_LEN];
 
@@ -125,6 +164,11 @@ void Server::processRequest() {
 
         if (++doccount == MAX_DOC_COUNT) break;
     }
+    sched[0] = false;
+    tBenchSendResp(reinterpret_cast<void*>(res), resLen);
+
+}
+
 	// printf(sched ? "true " : "false ");
  /*	if (sched == true) {
    	 //printf("Changin cores");
@@ -154,9 +198,6 @@ void Server::processRequest() {
     //fclose(F);
     //fclose(G);
 */
-    tBenchSendResp(reinterpret_cast<void*>(res), resLen);
-
-    }
 void* Server::run(void* v) {
     Server* server = static_cast<Server*> (v);
     pthread_create(&hurryup, NULL, hurryScheduler, NULL);
@@ -170,5 +211,10 @@ void Server::init(unsigned long _numReqsToProcess, unsigned numServers) {
 }
 
 void Server::fini() {
+//    pthread_cancel(hurryup);
+    running = false;
+    printf("Waiting ");
+    pthread_join(hurryup, NULL);
+    printf("Ended");
     pthread_barrier_destroy(&barrier);
-}
+    }
