@@ -35,7 +35,7 @@ unsigned long Server::numReqsToProcess = 0;
 volatile atomic_ulong Server::numReqsProcessed(0);
 pthread_barrier_t Server::barrier;
 pthread_t hurryup;
-bool sched[2] = { false, false };
+//bool sched[2] = { false, false };
 bool running = true;
 
 Server::Server(int id, string dbPath) 
@@ -83,24 +83,23 @@ unordered_map <int, int> schedMap;
 void* hurryScheduler(void* v) {
     uint64_t maxFreq = 0x1a00;
     uint64_t defaultFreq = 0x1200;
-    cpu_set_t set;
-    CPU_SET(15, &set);
-    int msr_fd = open("/dev/cpu/12/msr", O_RDWR);
-    sched_setaffinity(0, sizeof(set), &set); 
+    //cpu_set_t set;
+    //CPU_SET(15, &set);
+    //int msr_fd = open("/dev/cpu/12/msr", O_RDWR);
+    //sched_setaffinity(0, sizeof(set), &set); 
 
-    int schedservers = 2;
-
+    //int schedservers = 2;
 	while(running) {    
-        for(int i = 0; i < schedservers; i++) {
-            if(sched[i] == true) {
+       // for(int i = 0; i < schedservers; i++) {
+            //if(sched[i] == true) {
    //             printf("Changing freq\N");
-                pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL);
-            }
-            if(sched[i] == false) {
+                //pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL);
+           // }
+            //if(sched[i] == false) {
                 //printf("Diminishing freq");
-                pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
-            }
-        }
+                //pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
+         //   }
+       // }
    }
 }
 
@@ -118,7 +117,7 @@ void Server::processRequest() {
     unsigned int flags = Xapian::QueryParser::FLAG_DEFAULT;
     Xapian::Query query = parser.parse_query(term, flags);
     enquire.set_query(query);
-    
+    printf("%d", coreId);
     mset = enquire.get_mset(0, MSET_SIZE);
     
     const unsigned MAX_RES_LEN = 1 << 20;
@@ -135,7 +134,7 @@ void Server::processRequest() {
 
         if (++doccount == MAX_DOC_COUNT) break;
     }
-    sched[0] = false;
+    //sched[0] = false;
     tBenchSendResp(reinterpret_cast<void*>(res), resLen);
 
 }

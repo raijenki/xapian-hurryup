@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
     int coreNumber = 0;
     cpu_set_t cpuset;
-
+    pthread_t autoThread;
     // For hurry-up purposes: ENDING
 
     if (numServers > 1) {
@@ -82,8 +82,8 @@ int main(int argc, char* argv[]) {
 
 	    CPU_ZERO(&cpuset);
 	    CPU_SET(coreNumber, &cpuset);
-	    thread = pthread_self();
-	    pthread_setaffinity_np(thread, sizeof(cpu_set_t, &cpuset);
+	    autoThread = pthread_self();
+	    pthread_setaffinity_np(autoThread, sizeof(cpu_set_t), &cpuset);
 	    coreId = coreNumber;
 	    coreNumber = coreNumber + 2; // Server is only on even processors (0, 2, 4, 6, etc)
 
