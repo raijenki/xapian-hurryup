@@ -65,10 +65,29 @@ int main(int argc, char* argv[]) {
         servers[i] = new Server(i, dbPath);
    
     pthread_t* threads = NULL;
+
+    // For hurry-up purposes: BEGGINING
+
+    int coreNumber = 0;
+    cpu_set_t cpuset;
+
+    // For hurry-up purposes: ENDING
+
     if (numServers > 1) {
         threads = new pthread_t [numServers - 1];
         for (unsigned i = 0; i < numServers - 1; i++) {
             pthread_create(&threads[i], NULL, Server::run, servers[i]);
+	   
+	    // For hurry-up purposes: BEGGINING
+
+	    CPU_ZERO(&cpuset);
+	    CPU_SET(coreNumber, &cpuset);
+	    thread = pthread_self();
+	    pthread_setaffinity_np(thread, sizeof(cpu_set_t, &cpuset);
+	    coreId = coreNumber;
+	    coreNumber = coreNumber + 2; // Server is only on even processors (0, 2, 4, 6, etc)
+
+	    // For hurry-up purposes: ENDING
         }
     }
     

@@ -1,2 +1,2 @@
 # hurryup-dvfs
-Hurryup on DVFS
+This is the repository for the hurryup scheduler.
