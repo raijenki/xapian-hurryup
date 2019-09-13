@@ -11,7 +11,7 @@ In a high-level discussion, it works dynamically through the real-time profiling
 Simply clone the repository and use the start.sh script included for a quick start.
 
 ## What is the expected overhead of the scheduler?
-The expected introducted overhead by running the profiling application is expected to be very low.
+The expected introducted overhead by running the profiling application is expected to be very high (hence why we dropped the project).
 
 ## How the file directory is structured?
 * aux folder: Contains applications directly related to the Awesome Scheduler, but not programmed by the project.
