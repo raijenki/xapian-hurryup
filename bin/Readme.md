@@ -1,4 +1,4 @@
-Pasta dos binários e das dependências do Hurryup/Xapian/Tailbench
-* deps: Todas as dependências necessárias para compilar o Xapian
-* xapian-hurryup: Versão modificada (Hurryup)
-* xapian-pure: Tailbench "original"
+Binary and dependencies folder for Hurryup/Xapian/Tailbench:
+* **deps**: All the necessary dependencies to compile Xapian, plus harness.
+* **xapian-hurryup**: Hurryup (Tailbench's Xapian modified version)
+* **xapian-pure**: Tailbench's Xapian without modification
