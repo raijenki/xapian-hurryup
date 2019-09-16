@@ -1,7 +1,7 @@
 #ifndef __SERVER_H
 #define __SERVER_H
 
-#include <atomic>
+#include <stdatomic.h>
 #include <pthread.h>
 #include <xapian.h>
 #include <vector>
@@ -37,7 +37,7 @@ class Server {
 	};
 void* hurryScheduler(void* v);	
 extern bool sched[2];
-extern int coreId;
+extern atomic_int coreId;
 extern bool running;
 extern pthread_t hurryup;
 	//bool sched;

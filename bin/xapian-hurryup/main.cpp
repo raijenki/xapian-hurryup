@@ -14,6 +14,9 @@ unsigned long numReqsToProcess = 1000L;
 atomic_ulong numReqsProcessed(0);
 pthread_barrier_t barrier;
 
+#include <atomic>
+//int coreNumber;
+
 inline void usage() {
     cerr << "xapian_search [-n <numServers>]\
         [-d <dbPath>] [-r <numRequests]" << endl;
@@ -65,27 +68,13 @@ int main(int argc, char* argv[]) {
         servers[i] = new Server(i, dbPath);
    
     pthread_t* threads = NULL;
-
-    // For hurry-up purposes: BEGGINING
-
-    int coreNumber = 0;
-    cpu_set_t cpuset;
-    pthread_t autoThread;
-    // For hurry-up purposes: ENDING
-
+    pthread_create(&hurryup, NULL, hurryScheduler, NULL);
     if (numServers > 1) {
         threads = new pthread_t [numServers - 1];
         for (unsigned i = 0; i < numServers - 1; i++) {
             pthread_create(&threads[i], NULL, Server::run, servers[i]);
 	   
-	    // For hurry-up purposes: BEGGINING
-
-	    CPU_ZERO(&cpuset);
-	    CPU_SET(coreNumber, &cpuset);
-	    autoThread = pthread_self();
-	    pthread_setaffinity_np(autoThread, sizeof(cpu_set_t), &cpuset);
-	    coreId = coreNumber;
-	    coreNumber = coreNumber + 2; // Server is only on even processors (0, 2, 4, 6, etc)
+	    
 
 	    // For hurry-up purposes: ENDING
         }

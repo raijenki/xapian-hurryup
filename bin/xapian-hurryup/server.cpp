@@ -20,11 +20,20 @@
 
 // FOR HURRY-UP PURPOSES: BEGGINING
 #include <sched.h>
+#include <stdatomic.h>
 #include <unordered_map>
 #define _GNU_SOURCE 1
 #define IA32_PERF_STATUS 0x198      //only read
 #define IA32_PERF_CTL 0x199         ///only write
 #define UNCORE_FREQ 0x620
+
+
+std::atomic_int coreId;
+//std::atomic<int> coreId;
+pthread_t hurryup;
+bool running = true;
+std::unordered_map <int, int> schedMap;
+
 // FOR HURRY-UP PURPOSES: ENDING
 
 
@@ -34,9 +43,7 @@ using namespace std;
 unsigned long Server::numReqsToProcess = 0;
 volatile atomic_ulong Server::numReqsProcessed(0);
 pthread_barrier_t Server::barrier;
-pthread_t hurryup;
-//bool sched[2] = { false, false };
-bool running = true;
+
 
 Server::Server(int id, string dbPath) 
     : db(dbPath)
@@ -76,10 +83,6 @@ void Server::_run() {
 }
 
 // FOR HURRY-UP PURPOSES: BEGGINING
-
-int coreId;
-unordered_map <int, int> schedMap;
-//bool sched;
 void* hurryScheduler(void* v) {
     uint64_t maxFreq = 0x1a00;
     uint64_t defaultFreq = 0x1200;
@@ -117,7 +120,15 @@ void Server::processRequest() {
     unsigned int flags = Xapian::QueryParser::FLAG_DEFAULT;
     Xapian::Query query = parser.parse_query(term, flags);
     enquire.set_query(query);
-    printf("%d", coreId);
+    
+    /*pthread_t autoThread; 
+    int p;
+    autoThread = pthread_self();
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    /CPU_ISSET(p, &cpuset);
+
+    printf("%d ", p)a;*/
     mset = enquire.get_mset(0, MSET_SIZE);
     
     const unsigned MAX_RES_LEN = 1 << 20;
@@ -140,8 +151,20 @@ void Server::processRequest() {
 }
 
 void* Server::run(void* v) {
+    
+	
+    int coreNumber = coreId;
+    coreId = coreId + 2;
+    printf("%d, coreNumber");
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(coreNumber, &cpuset);
+    pthread_t selfThread = pthread_self();
+    pthread_setaffinity_np(selfThread, sizeof(cpu_set_t), &cpuset); 
+
+
     Server* server = static_cast<Server*> (v);
-    pthread_create(&hurryup, NULL, hurryScheduler, NULL);
+    //pthread_create(&hurryup, NULL, hurryScheduler, NULL);
     server->_run();
     return NULL;
 }
