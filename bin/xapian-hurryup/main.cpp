@@ -2,6 +2,7 @@
 #include <atomic>
 #include <pthread.h>
 #include <unistd.h>
+#include <unordered_map>
 #include <string.h>
 #include "server.h"
 #include "tbench_server.h"
@@ -14,7 +15,6 @@ unsigned long numReqsToProcess = 1000L;
 atomic_ulong numReqsProcessed(0);
 pthread_barrier_t barrier;
 
-#include <atomic>
 //int coreNumber;
 
 inline void usage() {
@@ -68,13 +68,22 @@ int main(int argc, char* argv[]) {
         servers[i] = new Server(i, dbPath);
    
     pthread_t* threads = NULL;
+
+    cpu_set_t cpuset;
+    int coreNumber = 0;
     pthread_create(&hurryup, NULL, hurryScheduler, NULL);
     if (numServers > 1) {
         threads = new pthread_t [numServers - 1];
         for (unsigned i = 0; i < numServers - 1; i++) {
             pthread_create(&threads[i], NULL, Server::run, servers[i]);
 	   
+	    // For hurry-up purposes: BEGGINING
 	    
+	    CPU_ZERO(&cpuset);
+	    CPU_SET(coreNumber, &cpuset);
+	    pthread_setaffinity_np(threads[i], sizeof(cpu_set_t), &cpuset);
+	    core_mapping[threads[i]] = coreNumber;
+	    coreNumber = coreNumber + 2;
 
 	    // For hurry-up purposes: ENDING
         }

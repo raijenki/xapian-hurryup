@@ -1,7 +1,7 @@
 #ifndef __SERVER_H
 #define __SERVER_H
 
-#include <stdatomic.h>
+#include <unordered_map>
 #include <pthread.h>
 #include <xapian.h>
 #include <vector>
@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
+
 class Server {
     private:
         static unsigned long numReqsToProcess;
@@ -35,9 +36,8 @@ class Server {
         static void init(unsigned long _numReqsToProcess, unsigned numServers);
         static void fini();
 	};
-void* hurryScheduler(void* v);	
-extern bool sched[2];
-extern atomic_int coreId;
+extern void* hurryScheduler(void* v);	
+extern std::unordered_map<pthread_t, int> core_mapping;
 extern bool running;
 extern pthread_t hurryup;
 	//bool sched;

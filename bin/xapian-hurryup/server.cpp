@@ -1,3 +1,4 @@
+#include <atomic>
 #include <asm/unistd.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -20,7 +21,6 @@
 
 // FOR HURRY-UP PURPOSES: BEGGINING
 #include <sched.h>
-#include <stdatomic.h>
 #include <unordered_map>
 #define _GNU_SOURCE 1
 #define IA32_PERF_STATUS 0x198      //only read
@@ -28,12 +28,11 @@
 #define UNCORE_FREQ 0x620
 
 
-std::atomic_int coreId;
 //std::atomic<int> coreId;
 pthread_t hurryup;
 bool running = true;
-std::unordered_map <int, int> schedMap;
-
+std::unordered_map <pthread_t, int> schedMap;
+std::unordered_map <pthread_t, int> core_mapping;
 // FOR HURRY-UP PURPOSES: ENDING
 
 
@@ -86,25 +85,24 @@ void Server::_run() {
 void* hurryScheduler(void* v) {
     uint64_t maxFreq = 0x1a00;
     uint64_t defaultFreq = 0x1200;
-    //cpu_set_t set;
-    //CPU_SET(15, &set);
-    //int msr_fd = open("/dev/cpu/12/msr", O_RDWR);
-    //sched_setaffinity(0, sizeof(set), &set); 
+    string concat_dir1, concat_dir2, concat_dir3;
+    int msr_fd;
 
-    //int schedservers = 2;
-	while(running) {    
-       // for(int i = 0; i < schedservers; i++) {
-            //if(sched[i] == true) {
-   //             printf("Changing freq\N");
-                //pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL);
-           // }
-            //if(sched[i] == false) {
-                //printf("Diminishing freq");
-                //pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
-         //   }
-       // }
-   }
-}
+	while(running) {
+		for (auto x : core_mapping) {
+			concat_dir1 = "/dev/cpu/";
+			concat_dir2 = to_string(x.second);
+			concat_dir3 = concat_dir1 + concat_dir2 + "/msr";
+			msr_fd = open(concat_dir3.c_str(), O_RDWR);
+			if(schedMap[x.first] == x.second) {
+				pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL); 
+			}
+			else {
+				pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
+			}
+   		}
+		}
+	}
 
 // FOR HURRY-UP PURPOSES: ENDING
 
@@ -121,16 +119,15 @@ void Server::processRequest() {
     Xapian::Query query = parser.parse_query(term, flags);
     enquire.set_query(query);
     
-    /*pthread_t autoThread; 
-    int p;
-    autoThread = pthread_self();
-    cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-    /CPU_ISSET(p, &cpuset);
-
-    printf("%d ", p)a;*/
+    // FOR HP PURPOSES: BEGGINING
+    pthread_t autoThread = pthread_self();
+    schedMap[autoThread] = core_mapping[autoThread];
+    
     mset = enquire.get_mset(0, MSET_SIZE);
     
+    schedMap[autoThread] = -1;
+    // FOR HP PURPOSES: ENDING
+
     const unsigned MAX_RES_LEN = 1 << 20;
     char res[MAX_RES_LEN];
 
@@ -152,15 +149,6 @@ void Server::processRequest() {
 
 void* Server::run(void* v) {
     
-	
-    int coreNumber = coreId;
-    coreId = coreId + 2;
-    printf("%d, coreNumber");
-    cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-    CPU_SET(coreNumber, &cpuset);
-    pthread_t selfThread = pthread_self();
-    pthread_setaffinity_np(selfThread, sizeof(cpu_set_t), &cpuset); 
 
 
     Server* server = static_cast<Server*> (v);
