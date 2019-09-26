@@ -45,7 +45,7 @@ class Client {
 
         uint64_t startedReqs;
         std::unordered_map<uint64_t, Request*> inFlightReqs;
-
+	std::vector<uint64_t> keyLengths;
         std::vector<uint64_t> svcTimes;
         std::vector<uint64_t> queueTimes;
         std::vector<uint64_t> sjrnTimes;

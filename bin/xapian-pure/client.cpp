@@ -80,7 +80,7 @@ void tBenchClientInit() {
 size_t tBenchClientGenReq(void* data) {
     std::string term = termSet->getTerm();
     size_t len = term.size();
-
+    //printf("Length: %zu //", len);
     memcpy(data, reinterpret_cast<const void*>(term.c_str()), len + 1);
 
     return len + 1;

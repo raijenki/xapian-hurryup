@@ -85,6 +85,7 @@ Request* Client::startReq() {
     Request* req = new Request();
     size_t len = tBenchClientGenReq(&req->data);
     req->len = len;
+    //printf("Req size: %lu ", len);
 
     req->id = startedReqs++;
     req->genNs = dist->nextArrivalNs();
@@ -112,11 +113,13 @@ void Client::finiReq(Response* resp) {
         uint64_t curNs = getCurNs();
 
         assert(curNs > req->genNs);
-
+	unsigned long keyLength = req->len;
+	//printf("Size: %lu", keyLength);
         uint64_t sjrn = curNs - req->genNs;
         assert(sjrn >= resp->svcNs);
         uint64_t qtime = sjrn - resp->svcNs;
-
+	
+	keyLengths.push_back(keyLength);
         queueTimes.push_back(qtime);
         svcTimes.push_back(resp->svcNs);
         sjrnTimes.push_back(sjrn);
@@ -147,6 +150,8 @@ void Client::dumpStats() {
     int reqs = sjrnTimes.size();
 
     for (int r = 0; r < reqs; ++r) {
+	    //printf("%lu", &keyLengths[r]);
+	out.write(reinterpret_cast<const char*>(&keyLengths[r]), sizeof(keyLengths[r]));
         out.write(reinterpret_cast<const char*>(&queueTimes[r]), 
                     sizeof(queueTimes[r]));
         out.write(reinterpret_cast<const char*>(&svcTimes[r]), 

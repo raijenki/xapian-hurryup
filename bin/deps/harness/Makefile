@@ -1,5 +1,5 @@
 
-include ../Makefile.config
+include ../configs.sh
 
 CXX = g++
 CXXFLAGS = -O3 -g -fPIC -std=c++0x
