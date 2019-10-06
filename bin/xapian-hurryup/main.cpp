@@ -71,8 +71,7 @@ int main(int argc, char* argv[]) {
 
     cpu_set_t cpuset;
     int coreNumber = 0;
-    pthread_create(&hurryup, NULL, hurryScheduler, NULL);
-    if (numServers > 1) {
+        if (numServers > 1) {
         threads = new pthread_t [numServers - 1];
         for (unsigned i = 0; i < numServers - 1; i++) {
             pthread_create(&threads[i], NULL, Server::run, servers[i]);
@@ -83,12 +82,14 @@ int main(int argc, char* argv[]) {
 	    CPU_SET(coreNumber, &cpuset);
 	    pthread_setaffinity_np(threads[i], sizeof(cpu_set_t), &cpuset);
 	    core_mapping[threads[i]] = coreNumber;
+	    //printf("map %d ", coreNumber);
 	    coreNumber = coreNumber + 2;
 
 	    // For hurry-up purposes: ENDING
         }
+
     }
-    
+    pthread_create(&hurryup, NULL, hurryScheduler, NULL);
     Server::run(servers[numServers - 1]);
 
     if (numServers > 1) {

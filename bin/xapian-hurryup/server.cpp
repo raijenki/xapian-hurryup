@@ -30,7 +30,7 @@
 
 //std::atomic<int> coreId;
 pthread_t hurryup;
-bool running = true;
+int running = 1;
 std::unordered_map <pthread_t, int> schedMap;
 std::unordered_map <pthread_t, int> core_mapping;
 // FOR HURRY-UP PURPOSES: ENDING
@@ -91,16 +91,19 @@ void* hurryScheduler(void* v) {
 	while(running) {
 		for (auto x : core_mapping) {
 			concat_dir1 = "/dev/cpu/";
+			//printf("directory %d ", x.second);
 			concat_dir2 = to_string(x.second);
 			concat_dir3 = concat_dir1 + concat_dir2 + "/msr";
 			msr_fd = open(concat_dir3.c_str(), O_RDWR);
 			if(schedMap[x.first] == x.second) {
+				//printf("freq's up");
 				pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL); 
 			}
 			else {
+				//printf("freq`s down");
 				pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
 			}
-   		}
+   			}
 		}
 	}
 
@@ -116,17 +119,17 @@ void Server::processRequest() {
     term[len] = '\0';
 
     unsigned int flags = Xapian::QueryParser::FLAG_DEFAULT;
+    pthread_t autoThread = pthread_self();
+    schedMap[autoThread] = core_mapping[autoThread];
+  
     Xapian::Query query = parser.parse_query(term, flags);
     enquire.set_query(query);
     
     // FOR HP PURPOSES: BEGGINING
-    pthread_t autoThread = pthread_self();
-    schedMap[autoThread] = core_mapping[autoThread];
-    
+   
     mset = enquire.get_mset(0, MSET_SIZE);
     
-    schedMap[autoThread] = -1;
-    // FOR HP PURPOSES: ENDING
+       // FOR HP PURPOSES: ENDING
 
     const unsigned MAX_RES_LEN = 1 << 20;
     char res[MAX_RES_LEN];
@@ -142,6 +145,8 @@ void Server::processRequest() {
 
         if (++doccount == MAX_DOC_COUNT) break;
     }
+    schedMap[autoThread] = -1;
+
     //sched[0] = false;
     tBenchSendResp(reinterpret_cast<void*>(res), resLen);
 
@@ -164,7 +169,7 @@ void Server::init(unsigned long _numReqsToProcess, unsigned numServers) {
 
 void Server::fini() {
 //    pthread_cancel(hurryup);
-    running = false;
+    running = 0;
     printf("Waiting ");
     pthread_join(hurryup, NULL);
     printf("Ended");

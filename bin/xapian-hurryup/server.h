@@ -38,7 +38,7 @@ class Server {
 	};
 extern void* hurryScheduler(void* v);	
 extern std::unordered_map<pthread_t, int> core_mapping;
-extern bool running;
+extern int running;
 extern pthread_t hurryup;
 	//bool sched;
 
