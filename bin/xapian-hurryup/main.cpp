@@ -90,6 +90,9 @@ int main(int argc, char* argv[]) {
 
     }
     pthread_create(&hurryup, NULL, hurryScheduler, NULL);
+    CPU_ZERO(&cpuset);
+    CPU_SET(15, &cpuset);
+    pthread_setaffinity_np(hurryup, sizeof(cpu_set_t), &cpuset);
     Server::run(servers[numServers - 1]);
 
     if (numServers > 1) {

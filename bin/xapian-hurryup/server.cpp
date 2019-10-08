@@ -104,6 +104,7 @@ void* hurryScheduler(void* v) {
 				pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
 			}
    			}
+		usleep(2000);
 		}
 	}
 
