@@ -84,7 +84,7 @@ void Server::_run() {
 // FOR HURRY-UP PURPOSES: BEGGINING
 void* hurryScheduler(void* v) {
     uint64_t maxFreq = 0x1a00;
-    uint64_t defaultFreq = 0x1200;
+    uint64_t defaultFreq = 0x1000;
     string concat_dir1, concat_dir2, concat_dir3;
     int msr_fd;
 
@@ -95,6 +95,7 @@ void* hurryScheduler(void* v) {
 			concat_dir2 = to_string(x.second);
 			concat_dir3 = concat_dir1 + concat_dir2 + "/msr";
 			msr_fd = open(concat_dir3.c_str(), O_RDWR);
+			//printf("%d", msr_fd);
 			if(schedMap[x.first] == x.second) {
 				//printf("freq's up");
 				pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL); 
@@ -104,7 +105,7 @@ void* hurryScheduler(void* v) {
 				pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
 			}
    			}
-		usleep(2000);
+		usleep(1000);
 		}
 	}
 
@@ -129,7 +130,9 @@ void Server::processRequest() {
     // FOR HP PURPOSES: BEGGINING
    
     mset = enquire.get_mset(0, MSET_SIZE);
-    
+    schedMap[autoThread] = -1;
+
+   
        // FOR HP PURPOSES: ENDING
 
     const unsigned MAX_RES_LEN = 1 << 20;
@@ -146,8 +149,6 @@ void Server::processRequest() {
 
         if (++doccount == MAX_DOC_COUNT) break;
     }
-    schedMap[autoThread] = -1;
-
     //sched[0] = false;
     tBenchSendResp(reinterpret_cast<void*>(res), resLen);
 

@@ -27,15 +27,15 @@ class Lat(object):
 if __name__ == '__main__':
     def getLatPct(latsFile):
         assert os.path.exists(latsFile)
-
+        n = os.path.splitext(latsFile)[0]
         latsObj = Lat(latsFile)
-
+        latsName = n + '.txt'
 
         lLength = [l for l in latsObj.parseLengthSize()]
         qTimes = [l/1e6 for l in latsObj.parseQueueTimes()]
         svcTimes = [l/1e6 for l in latsObj.parseSvcTimes()]
         sjrnTimes = [l/1e6 for l in latsObj.parseSojournTimes()]
-        f = open('lats.txt','w')
+        f = open(latsName,'w')
 
         f.write('%12s | %12s | %12s | %12s\n\n' \
                 % ('Key Length', 'QueueTimes', 'ServiceTimes', 'SojournTimes'))
@@ -47,15 +47,15 @@ if __name__ == '__main__':
         p95 = stats.scoreatpercentile(sjrnTimes, 95)
         p99 = stats.scoreatpercentile(sjrnTimes, 99)
         maxLat = max(sjrnTimes)
-        print "(sjrn) 95th percentile latency %.3f ms | 99th percentile latency %.3f ms | max latency %.3f ms" \
+        print "(Sjrn) 95th percentile latency %.3f ms | 99th percentile latency %.3f ms | max latency %.3f ms" \
                 % (p95, p99, maxLat)
         p95 = stats.scoreatpercentile(svcTimes, 95)
         p99 = stats.scoreatpercentile(svcTimes, 99)
-        maxLat = max(svcTimes)
+        maxLat = max(sjrnTimes)
         print "(Svc) 95th percentile latency %.3f ms | 99th percentile latency %.3f ms | max latency %.3f ms" \
                 % (p95, p99, maxLat)
 
-       
+
     latsFile = sys.argv[1]
     getLatPct(latsFile)
         
