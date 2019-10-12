@@ -9,14 +9,14 @@ WARMUPREQS=1000
 REQUESTS=30000
 echo "Run , Difference" > energy.txt
 
-for counter in {21..30..1}; 
+for counter in {1..40..1}; 
 	do
 		TBENCH_MAXREQS=${REQUESTS} TBENCH_WARMUPREQS=${WARMUPREQS} chrt -r 99 ./xapian_networked_server -n ${NSERVERS} -d ${DATA_ROOT}/xapian/wiki -r 1000000000 &
 		echo $! > server.pid
 		energyStart=$(cat /sys/class/powercap/intel-rapl/intel-rapl\:0/energy_uj)
 		sleep 5 # Wait for server to come up
 #taskset -apc 0,2,4,6,8,10,12,14,16,18,20,22 $(cat server.pid)
-		sudo wrmsr -a 0x199 0x1000
+		sudo wrmsr -a 0x199 0xe00
 
 		TBENCH_QPS=${QPS} TBENCH_CLIENT_THREADS=4 TBENCH_MINSLEEPNS=50000 TBENCH_TERMS_FILE=${DATA_ROOT}/xapian/terms.in chrt -r 99 ./xapian_networked_client &
   
@@ -32,6 +32,6 @@ for counter in {21..30..1};
 # Clean up
 		./kill_networked.sh
 		rm server.pid client.pid
-		mv lats.bin ../../raw-results/07/pure-start@1.6ghz-10servers-${counter}.bin
+		mv lats.bin ../../raw-results/08/pure-start@1.4ghz-10servers-${counter}.bin
 	done
-mv energy.txt ../../raw-results/07/energy-pure-start@1.6ghz-10servers-3.txt
+mv energy.txt ../../raw-results/08/energy-pure-start@1.4ghz-10servers.txt
