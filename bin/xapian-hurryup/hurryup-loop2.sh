@@ -9,7 +9,7 @@ WARMUPREQS=1000
 REQUESTS=30000
 echo "Run , Difference" > energy.txt
 
-for counter in {31..40..1}; 
+for counter in {1..10..1}; 
 	do
 		TBENCH_MAXREQS=${REQUESTS} TBENCH_WARMUPREQS=${WARMUPREQS} chrt -r 99 ./xapian_networked_server -n ${NSERVERS} -d ${DATA_ROOT}/xapian/wiki -r 1000000000 &
 		echo $! > server.pid

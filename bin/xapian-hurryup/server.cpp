@@ -84,7 +84,7 @@ void Server::_run() {
 // FOR HURRY-UP PURPOSES: BEGGINING
 void* hurryScheduler(void* v) {
     uint64_t maxFreq = 0x1a00;
-    uint64_t defaultFreq = 0xe00;
+    uint64_t defaultFreq = 0x1200;
     string concat_dir1, concat_dir2, concat_dir3;
     int msr_fd;
 
