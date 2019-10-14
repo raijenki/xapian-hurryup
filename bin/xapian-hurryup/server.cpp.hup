@@ -83,28 +83,27 @@ void Server::_run() {
 
 // FOR HURRY-UP PURPOSES: BEGGINING
 void* hurryScheduler(void* v) {
+    uint64_t maxFreq = 0x1a00;
+    uint64_t defaultFreq = 0x1200;
     string concat_dir1, concat_dir2, concat_dir3;
-    FILE *pFile; 
+    int msr_fd;
 
 	while(running) {
 		for (auto x : core_mapping) {
-			concat_dir1 = "/sys/devices/system/cpu/cpu";
+			concat_dir1 = "/dev/cpu/";
 			//printf("directory %d ", x.second);
 			concat_dir2 = to_string(x.second);
-			concat_dir3 = concat_dir1 + concat_dir2 + "/cpufreq/scaling_setspeed";
-			pFile = fopen(concat_dir3.c_str(), "w+");
+			concat_dir3 = concat_dir1 + concat_dir2 + "/msr";
+			msr_fd = open(concat_dir3.c_str(), O_RDWR);
 			//printf("%d", msr_fd);
 			if(schedMap[x.first] == x.second) {
 				//printf("freq's up");
-				fputs("2600000", pFile);
-			//	fwrite(max, 1, sizeof(max), pFile);
+				pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL); 
 			}
 			else {
-				fputs("1800000", pFile);
 				//printf("freq`s down");
-			//	fwrite(min, 1, sizeof(min), pFile);
+				pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
 			}
-			fclose(pFile);
    			}
 		usleep(1000);
 		}

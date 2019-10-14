@@ -9,9 +9,9 @@ WARMUPREQS=1000
 REQUESTS=30000
 echo "Run , Difference" > energy.txt
 
-for counter in {1..10..1}; 
+for counter in {1..5..1}; 
 	do
-		cat /sys/devices/system/cpu/cpu10/cpufreq/stats/time_in_state >> pure-timeState-start-${counter}.txt	
+		cat /sys/devices/system/cpu/cpu10/cpufreq/stats/time_in_state >> USERSPACE-hurryup-timeState-start-${counter}.txt	
 		TBENCH_MAXREQS=${REQUESTS} TBENCH_WARMUPREQS=${WARMUPREQS} chrt -r 99 ./xapian_networked_server -n ${NSERVERS} -d ${DATA_ROOT}/xapian/wiki -r 1000000000 &
 		echo $! > server.pid
 		energyStart=$(cat /sys/class/powercap/intel-rapl/intel-rapl\:0/energy_uj)	
@@ -27,13 +27,13 @@ for counter in {1..10..1};
 		wait $(cat client.pid)
 		energyEnd=$(cat /sys/class/powercap/intel-rapl/intel-rapl\:0/energy_uj)
 		consumption=$((energyEnd - energyStart))
-		cat /sys/devices/system/cpu/cpu10/cpufreq/stats/time_in_state >> pure-timeState-end-${counter}.txt
+		cat /sys/devices/system/cpu/cpu10/cpufreq/stats/time_in_state >> USERSPACE-hurryup-timeState-end-${counter}.txt
 		echo "$counter , $consumption" >> energy.txt
 
 # Clean up
 		./kill_networked.sh
 		rm server.pid client.pid
-		mv lats.bin ../../raw-results/09/ONDEMAND-pure-start@1.8ghz-10servers-${counter}.bin
+		mv lats.bin ../../raw-results/09/USERSPACE-hurryup-start@1.8ghz-10servers-${counter}.bin
 	done
-mv pure-timeState-* ../../raw-results/09/
-mv energy.txt ../../raw-results/09/ONDEMAND-energy-pure-start@1.8ghz-10servers.txt
+mv USERSPACE-hurryup-timeState-* ../../raw-results/09/
+mv energy.txt ../../raw-results/09/USERSPACE-energy-hurryup-start@1.8ghz-10servers.txt
