@@ -16,7 +16,7 @@ for counter in {31..40..1};
 		energyStart=$(cat /sys/class/powercap/intel-rapl/intel-rapl\:0/energy_uj)
 		sleep 5 # Wait for server to come up
 #taskset -apc 0,2,4,6,8,10,12,14,16,18,20,22 $(cat server.pid)
-		sudo wrmsr -a 0x199 0xe00
+		sudo wrmsr -a 0x199 0x1200
 
 		TBENCH_QPS=${QPS} TBENCH_CLIENT_THREADS=4 TBENCH_MINSLEEPNS=50000 TBENCH_TERMS_FILE=${DATA_ROOT}/xapian/terms.in chrt -r 99 ./xapian_networked_client &
   
@@ -32,6 +32,6 @@ for counter in {31..40..1};
 # Clean up
 		./kill_networked.sh
 		rm server.pid client.pid
-		mv lats.bin ../../raw-results/08/hurryup-start@1.4ghz-10servers-${counter}.bin
+		mv lats.bin ../../raw-results/09/USERSPACE-hurryup-start@1.8ghz-10servers-${counter}.bin
 	done
-mv energy.txt ../../raw-results/08/energy-hurryup-start@1.4ghz-10servers-4.txt
+mv energy.txt ../../raw-results/09/USERSPACE-energy-hurryup-start@1.8ghz-10servers.txt
