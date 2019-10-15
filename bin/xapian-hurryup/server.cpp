@@ -106,7 +106,7 @@ void* hurryScheduler(void* v) {
 			}
 			fclose(pFile);
    			}
-		usleep(1000);
+		usleep(2000);
 		}
 	}
 
