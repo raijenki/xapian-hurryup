@@ -6,10 +6,10 @@ source ${DIR}/../deps/configs.sh
 NSERVERS=10
 QPS=1400
 WARMUPREQS=1000
-REQUESTS=30000
+REQUESTS=60000
 echo "Run , Difference" > energy.txt
 
-for counter in {1..10..1}; 
+for counter in {1..30..1}; 
 	do
 		cat /sys/devices/system/cpu/cpu10/cpufreq/stats/time_in_state >> pure-timeState-start-${counter}.txt	
 		TBENCH_MAXREQS=${REQUESTS} TBENCH_WARMUPREQS=${WARMUPREQS} chrt -r 99 ./xapian_networked_server -n ${NSERVERS} -d ${DATA_ROOT}/xapian/wiki -r 1000000000 &

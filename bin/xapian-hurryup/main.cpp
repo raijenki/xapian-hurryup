@@ -2,6 +2,9 @@
 #include <atomic>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>  
 #include <unordered_map>
 #include <string.h>
 #include "server.h"
@@ -68,7 +71,9 @@ int main(int argc, char* argv[]) {
         servers[i] = new Server(i, dbPath);
    
     pthread_t* threads = NULL;
-
+    string concat_dir1 = "/sys/devices/system/cpu/cpu";
+    string concat_dir2;
+    string concat_dir3;
     cpu_set_t cpuset;
     int coreNumber = 0;
         if (numServers > 1) {
@@ -77,7 +82,9 @@ int main(int argc, char* argv[]) {
             pthread_create(&threads[i], NULL, Server::run, servers[i]);
 	   
 	    // For hurry-up purposes: BEGGINING
-	    
+	    concat_dir2 = to_string(coreNumber);
+	    concat_dir3 = concat_dir1 + concat_dir2 + "/cpufreq/scaling_setspeed";
+	    fd[coreNumber] = open(concat_dir3.c_str(), O_RDWR);
 	    CPU_ZERO(&cpuset);
 	    CPU_SET(coreNumber, &cpuset);
 	    pthread_setaffinity_np(threads[i], sizeof(cpu_set_t), &cpuset);

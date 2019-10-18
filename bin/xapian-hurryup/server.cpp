@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <pthread.h>
 #include "server.h"
 #include "tbench_server.h"
@@ -31,6 +33,7 @@
 //std::atomic<int> coreId;
 pthread_t hurryup;
 int running = 1;
+int fd[24];
 std::unordered_map <pthread_t, int> schedMap;
 std::unordered_map <pthread_t, int> core_mapping;
 // FOR HURRY-UP PURPOSES: ENDING
@@ -84,30 +87,34 @@ void Server::_run() {
 // FOR HURRY-UP PURPOSES: BEGGINING
 void* hurryScheduler(void* v) {
     string concat_dir1, concat_dir2, concat_dir3;
-    FILE *pFile; 
+    char maxFreq[8] = "2600000";
+    char minFreq[8] = "1800000";
 
 	while(running) {
 		for (auto x : core_mapping) {
-			concat_dir1 = "/sys/devices/system/cpu/cpu";
+			//concat_dir1 = "/sys/devices/system/cpu/cpu";
 			//printf("directory %d ", x.second);
-			concat_dir2 = to_string(x.second);
-			concat_dir3 = concat_dir1 + concat_dir2 + "/cpufreq/scaling_setspeed";
-			pFile = fopen(concat_dir3.c_str(), "w+");
+			//concat_dir2 = to_string(x.second);
+			//concat_dir3 = concat_dir1 + concat_dir2 + "/cpufreq/scaling_setspeed";
+			//pFile = fopen(concat_dir3.c_str(), "w+");
 			//printf("%d", msr_fd);
 			if(schedMap[x.first] == x.second) {
 				//printf("freq's up");
-				fputs("2600000", pFile);
+				write(fd[x.second], maxFreq, strlen(maxFreq));
+				//fputs("2600000", pFile);
 			//	fwrite(max, 1, sizeof(max), pFile);
-			}
+				}
 			else {
-				fputs("1800000", pFile);
+				write(fd[x.second], minFreq, strlen(minFreq));
+				//fputs("1800000", pFile);
 				//printf("freq`s down");
 			//	fwrite(min, 1, sizeof(min), pFile);
-			}
-			fclose(pFile);
-   			}
+				}
+			lseek(fd[x.second], 0, SEEK_SET);
+			//fclose(pFile);
+   		}
 		usleep(2000);
-		}
+	}
 	}
 
 // FOR HURRY-UP PURPOSES: ENDING
