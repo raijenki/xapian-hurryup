@@ -88,7 +88,7 @@ void Server::_run() {
 void* hurryScheduler(void* v) {
     string concat_dir1, concat_dir2, concat_dir3;
     char maxFreq[8] = "2600000";
-    char minFreq[8] = "1800000";
+    char minFreq[8] = "1400000";
 
 	while(running) {
 		for (auto x : core_mapping) {

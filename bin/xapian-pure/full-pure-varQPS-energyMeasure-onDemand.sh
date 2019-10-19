@@ -32,7 +32,7 @@ do
 			# Clean up
 			./kill_networked.sh
 			rm server.pid client.pid
-			mv lats.bin ../../raw-results/xapian/final/sjrnTime-on-varQPS/pure-governor@onDemand-12servers-${counter}-${queryPerSecond}.bin
+			mv lats.bin ../../raw-results/xapian/final/sjrnTime-on-varQPS/pure-governor@userspace-12servers-${counter}-${queryPerSecond}.bin
 		done
-	mv energy-pure.txt ../../raw-results/xapian/final/sjrnTime-on-varQPS/energy-pure-governor@onDemand-12servers-${queryPerSecond}.txt
+	mv energy-pure.txt ../../raw-results/xapian/final/sjrnTime-on-varQPS/energy-pure-governor@userspace-12servers-${queryPerSecond}.txt
 done
