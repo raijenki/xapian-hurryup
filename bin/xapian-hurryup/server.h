@@ -6,6 +6,8 @@
 #include <xapian.h>
 #include <vector>
 #include <signal.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
@@ -39,6 +41,7 @@ class Server {
 extern void* hurryScheduler(void* v);	
 extern std::unordered_map<pthread_t, int> core_mapping;
 extern int running;
+extern int fd[24];
 extern pthread_t hurryup;
 	//bool sched;
 

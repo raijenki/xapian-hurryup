@@ -133,7 +133,7 @@ void Client::finiReq(Response* resp) {
 void Client::_startRoi() {
     assert(status == WARMUP);
     status = ROI;
-
+    keyLengths.clear();
     queueTimes.clear();
     svcTimes.clear();
     sjrnTimes.clear();

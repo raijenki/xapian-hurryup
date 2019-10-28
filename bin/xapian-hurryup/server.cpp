@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <pthread.h>
 #include "server.h"
 #include "tbench_server.h"
@@ -31,6 +33,7 @@
 //std::atomic<int> coreId;
 pthread_t hurryup;
 int running = 1;
+int fd[24];
 std::unordered_map <pthread_t, int> schedMap;
 std::unordered_map <pthread_t, int> core_mapping;
 // FOR HURRY-UP PURPOSES: ENDING
@@ -83,30 +86,35 @@ void Server::_run() {
 
 // FOR HURRY-UP PURPOSES: BEGGINING
 void* hurryScheduler(void* v) {
-    uint64_t maxFreq = 0x1a00;
-    uint64_t defaultFreq = 0xe00;
     string concat_dir1, concat_dir2, concat_dir3;
-    int msr_fd;
+    char maxFreq[8] = "2600000";
+    char minFreq[8] = "1000000";
 
 	while(running) {
 		for (auto x : core_mapping) {
-			concat_dir1 = "/dev/cpu/";
+			//concat_dir1 = "/sys/devices/system/cpu/cpu";
 			//printf("directory %d ", x.second);
-			concat_dir2 = to_string(x.second);
-			concat_dir3 = concat_dir1 + concat_dir2 + "/msr";
-			msr_fd = open(concat_dir3.c_str(), O_RDWR);
+			//concat_dir2 = to_string(x.second);
+			//concat_dir3 = concat_dir1 + concat_dir2 + "/cpufreq/scaling_setspeed";
+			//pFile = fopen(concat_dir3.c_str(), "w+");
 			//printf("%d", msr_fd);
 			if(schedMap[x.first] == x.second) {
 				//printf("freq's up");
-				pwrite(msr_fd, &maxFreq, 8, IA32_PERF_CTL); 
-			}
+				write(fd[x.second], maxFreq, strlen(maxFreq));
+				//fputs("2600000", pFile);
+			//	fwrite(max, 1, sizeof(max), pFile);
+				}
 			else {
+				write(fd[x.second], minFreq, strlen(minFreq));
+				//fputs("1800000", pFile);
 				//printf("freq`s down");
-				pwrite(msr_fd, &defaultFreq, 8, IA32_PERF_CTL);
-			}
-   			}
-		usleep(1000);
-		}
+			//	fwrite(min, 1, sizeof(min), pFile);
+				}
+			lseek(fd[x.second], 0, SEEK_SET);
+			//fclose(pFile);
+   		}
+		usleep(2000);
+	}
 	}
 
 // FOR HURRY-UP PURPOSES: ENDING
@@ -172,8 +180,8 @@ void Server::init(unsigned long _numReqsToProcess, unsigned numServers) {
 void Server::fini() {
 //    pthread_cancel(hurryup);
     running = 0;
-    printf("Waiting ");
+    //printf("Waiting ");
     pthread_join(hurryup, NULL);
-    printf("Ended");
+    //printf("Ended");
     pthread_barrier_destroy(&barrier);
     }
