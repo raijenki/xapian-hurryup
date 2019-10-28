@@ -81,9 +81,14 @@ int main(int argc, char* argv[]) {
         threads = new pthread_t [numServers - 1];
         for (unsigned i = 0; i < numServers - 1; i++) {
             pthread_create(&threads[i], NULL, Server::run, servers[i]);
+<<<<<<< HEAD
 	    //printf("Thread on core %d", coreNumber);
 	    // For hurry-up purposes: BEGGININGa
 	    //fprintf(cores, "core %d created\n", coreNumber);
+=======
+	   
+	    // For hurry-up purposes: BEGGINING
+>>>>>>> 916f2c8b8c75cc1047828d3364991b2d67f0edc0
 	    concat_dir2 = to_string(coreNumber);
 	    concat_dir3 = concat_dir1 + concat_dir2 + "/cpufreq/scaling_setspeed";
 	    fd[coreNumber] = open(concat_dir3.c_str(), O_RDWR);

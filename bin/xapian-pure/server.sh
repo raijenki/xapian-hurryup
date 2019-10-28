@@ -6,7 +6,11 @@ source ${DIR}/../deps/configs.sh
 NSERVERS=10
 QPS=1600
 WARMUPREQS=1000
+<<<<<<< HEAD
 REQUESTS=20000
+=======
+REQUESTS=60000
+>>>>>>> 916f2c8b8c75cc1047828d3364991b2d67f0edc0
 
 TBENCH_MAXREQS=${REQUESTS} TBENCH_WARMUPREQS=${WARMUPREQS} \
     chrt -r 99 ./xapian_networked_server -n ${NSERVERS} -d ${DATA_ROOT}/xapian/wiki \

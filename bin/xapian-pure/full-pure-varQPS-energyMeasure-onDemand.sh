@@ -7,8 +7,12 @@ NSERVERS=12
 WARMUPREQS=5000
 PROCESSTIME=60
 
+<<<<<<< HEAD
 #for queryPerSecond in {120..1440..120}
 for queryPerSecond in {1560..3000..120}
+=======
+for queryPerSecond in {120..1420..120}
+>>>>>>> 916f2c8b8c75cc1047828d3364991b2d67f0edc0
 do
 	REQUESTS=$((queryPerSecond * PROCESSTIME))
 	echo "Run , Difference" > energy-pure.txt
@@ -33,7 +37,13 @@ do
 			# Clean up
 			./kill_networked.sh
 			rm server.pid client.pid
+<<<<<<< HEAD
 			mv lats.bin ../../raw-results/xapian/final/sjrnTime-on-varQPS/pure-governor@perf-12servers-${counter}-${queryPerSecond}.bin
 		done
 	mv energy-pure.txt ../../raw-results/xapian/final/sjrnTime-on-varQPS/energy-pure-governor@perf-12servers-${queryPerSecond}.txt
+=======
+			mv lats.bin ../../raw-results/xapian/final/sjrnTime-on-varQPS/pure-governor@userspace-12servers-${counter}-${queryPerSecond}.bin
+		done
+	mv energy-pure.txt ../../raw-results/xapian/final/sjrnTime-on-varQPS/energy-pure-governor@userspace-12servers-${queryPerSecond}.txt
+>>>>>>> 916f2c8b8c75cc1047828d3364991b2d67f0edc0
 done

@@ -32,7 +32,13 @@ do
 			# Clean up
 			./kill_networked.sh
 			rm server.pid client.pid
+<<<<<<< HEAD
 			mv lats.bin ../../raw-results/xapian/final/sjrnTime-on-varQPS/hup-start@1.3ghz-12servers-${counter}-${queryPerSecond}.bin
 		done
 	mv energy-hup.txt ../../raw-results/xapian/final/sjrnTime-on-varQPS/energy-hup-start@1.3ghz-12servers-${queryPerSecond}.txt
+=======
+			mv lats.bin ../../raw-results/xapian/final/sjrnTime-on-varQPS/hup-start@1.4ghz-12servers-${counter}-${queryPerSecond}.bin
+		done
+	mv energy-hup.txt ../../raw-results/xapian/final/sjrnTime-on-varQPS/energy-hup-start@1.4ghz-12servers-${queryPerSecond}.txt
+>>>>>>> 916f2c8b8c75cc1047828d3364991b2d67f0edc0
 done
