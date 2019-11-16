@@ -7,12 +7,12 @@ NSERVERS=12
 PROCESSTIME=60
 WARMUPTIME=5
 
-for queryPerSecond in {1200..12000..1200}
+for queryPerSecond in {1200..7200..1200}
 do
 	REQUESTS=$((queryPerSecond * PROCESSTIME))
 	WARMUPREQS=$((WARMUPTIME * queryPerSecond))
 	echo "Run, qps, Difference" > energy-pure.txt
-	for counter in {1..5..1}
+	for counter in {1..1..1}
 	do
 	energyStart=$(cat /sys/class/powercap/intel-rapl/intel-rapl\:0/energy_uj)
 	TBENCH_QPS=${queryPerSecond} TBENCH_CLIENT_THREADS=12 TBENCH_MAXREQS=${REQUESTS} TBENCH_WARMUPREQS=${WARMUPREQS} \
@@ -22,10 +22,10 @@ do
 	energyEnd=$(cat /sys/class/powercap/intel-rapl/intel-rapl\:0/energy_uj)
 	consumption=$((energyEnd - energyStart))
 	echo "$counter, $queryPerSecond, $consumption" >> energy-pure.txt
-	mv lats.bin ../../raw-results/xapian/final/pure/pure-governor@ondemand-12servers-${counter}-${queryPerSecond}.bin
+	mv lats.bin ../../raw-results/xapian/reruns/pure-governor@conservative-12servers-${counter}-${queryPerSecond}.bin
 	rm server.pid
 	done
-	mv energy-pure.txt ../../raw-results/xapian/final/pure/energy-pure-governor@ondemand-12servers-${queryPerSecond}.txt
+	mv energy-pure.txt ../../raw-results/xapian/reruns/energy-pure-governor@conservative-12servers-${queryPerSecond}.txt
 done
 
 #taskset -apc 12 $(cat server.pid)

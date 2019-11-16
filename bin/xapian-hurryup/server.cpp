@@ -25,7 +25,7 @@
 #include <sched.h>
 #include <unordered_map>
 #define _GNU_SOURCE 1
-#define IA32_PERF_STATUS 0x198      //only read
+#define IA32_PERF_STATUS 0x198     //only read
 #define IA32_PERF_CTL 0x199         ///only write
 #define UNCORE_FREQ 0x620
 
@@ -87,12 +87,8 @@ void Server::_run() {
 // FOR HURRY-UP PURPOSES: BEGGINING
 void* hurryScheduler(void* v) {
     string concat_dir1, concat_dir2, concat_dir3;
-    char maxFreq[8] = "2600000";
-<<<<<<< HEAD
-    char minFreq[8] = "1000000";
-=======
-    char minFreq[8] = "1400000";
->>>>>>> 916f2c8b8c75cc1047828d3364991b2d67f0edc0
+    char maxFreq[8] = "2500000";
+    char minFreq[8] = "2100000";
 
 	while(running) {
 		for (auto x : core_mapping) {
@@ -117,7 +113,7 @@ void* hurryScheduler(void* v) {
 			lseek(fd[x.second], 0, SEEK_SET);
 			//fclose(pFile);
    		}
-		usleep(2000);
+		usleep(4000);
 	}
 	}
 
