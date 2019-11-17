@@ -101,14 +101,14 @@ void* hurryScheduler(void* v) {
 	while(running) {
 		for (auto x : core_mapping) {
 			if(schedMap[x.first] == x.second) {
-				coreFreqs[x.second] += 4; 
+				coreFreqs[x.second] += 3; 
 				if(coreFreqs[x.second] > 12) coreFreqs[x.second] = 12;
 				step = floor(coreFreqs[x.second]);
 				write(fd[x.second], steps[step].c_str(), strlen(steps[step].c_str()));
 	
 				}
 			else {
-				coreFreqs[x.second] -= 1;
+				coreFreqs[x.second] -= 0.01;
 				if(coreFreqs[x.second] < 0) coreFreqs[x.second] = 0;
 				step = ceil(coreFreqs[x.second]);
 				write(fd[x.second], steps[step].c_str(), strlen(steps[step].c_str()));
