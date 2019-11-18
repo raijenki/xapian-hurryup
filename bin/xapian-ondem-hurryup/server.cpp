@@ -88,7 +88,7 @@ void Server::_run() {
 // FOR HURRY-UP PURPOSES: BEGGINING
 void* hurryScheduler(void* v) {
     string concat_dir1, concat_dir2, concat_dir3;
-    string steps[13] = { "1000000", "1100000", "1200000", "1500000", "1600000", 
+    string steps[14] = { "1000000", "1100000", "1200000", "1300000", "1500000", "1600000", 
 	    "1700000", "1800000", "1900000", "2000000", "2100000", "2300000", 
 	    "2400000", "2500000" };
     int coreFreqs[27];
@@ -101,14 +101,14 @@ void* hurryScheduler(void* v) {
 	while(running) {
 		for (auto x : core_mapping) {
 			if(schedMap[x.first] == x.second) {
-				coreFreqs[x.second] += 3; 
-				if(coreFreqs[x.second] > 12) coreFreqs[x.second] = 12;
+				coreFreqs[x.second] += 4; 
+				if(coreFreqs[x.second] > 13) coreFreqs[x.second] = 13;
 				step = floor(coreFreqs[x.second]);
 				write(fd[x.second], steps[step].c_str(), strlen(steps[step].c_str()));
 	
 				}
 			else {
-				coreFreqs[x.second] -= 0.01;
+				coreFreqs[x.second] -= 0.005;
 				if(coreFreqs[x.second] < 0) coreFreqs[x.second] = 0;
 				step = ceil(coreFreqs[x.second]);
 				write(fd[x.second], steps[step].c_str(), strlen(steps[step].c_str()));
@@ -119,7 +119,7 @@ void* hurryScheduler(void* v) {
 			lseek(fd[x.second], 0, SEEK_SET);
 			//fclose(pFile);
    		}
-		usleep(3000);
+		usleep(1000);
 	}
 	}
 
