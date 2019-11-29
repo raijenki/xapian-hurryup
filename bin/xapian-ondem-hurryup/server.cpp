@@ -93,6 +93,7 @@ void* hurryScheduler(void* v) {
 	    "2400000", "2500000" };
     int coreFreqs[27];
     int step;
+    int QPS = 3.6;
 
     for(int i = 0; i <= 26; i++) {
 	    coreFreqs[i] = 3;
@@ -108,7 +109,7 @@ void* hurryScheduler(void* v) {
 	
 				}
 			else {
-				coreFreqs[x.second] -= 0.005;
+				coreFreqs[x.second] -= 0.4*QPS;
 				if(coreFreqs[x.second] < 0) coreFreqs[x.second] = 0;
 				step = ceil(coreFreqs[x.second]);
 				write(fd[x.second], steps[step].c_str(), strlen(steps[step].c_str()));
@@ -119,7 +120,7 @@ void* hurryScheduler(void* v) {
 			lseek(fd[x.second], 0, SEEK_SET);
 			//fclose(pFile);
    		}
-		usleep(1000);
+		usleep(4000);
 	}
 	}
 

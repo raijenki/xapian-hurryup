@@ -87,8 +87,8 @@ void Server::_run() {
 // FOR HURRY-UP PURPOSES: BEGGINING
 void* hurryScheduler(void* v) {
     string concat_dir1, concat_dir2, concat_dir3;
-    char maxFreq[8] = "2500000";
-    char minFreq[8] = "2100000";
+    char maxFreq[8] = "1900000";
+    char minFreq[8] = "1200000";
 
 	while(running) {
 		for (auto x : core_mapping) {
@@ -113,7 +113,7 @@ void* hurryScheduler(void* v) {
 			lseek(fd[x.second], 0, SEEK_SET);
 			//fclose(pFile);
    		}
-		usleep(4000);
+		usleep(2000);
 	}
 	}
 

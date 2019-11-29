@@ -28,6 +28,7 @@ do
 	mv lats.txt ../../raw-results/time_in_state/hup-gov@varFreq-${counter}-${queryPerSecond}-sleep1000.txt
 	rm server.pid
 	done
+	cat energy-hup.txt
 	mv energy-hup.txt ../../raw-results/time_in_state/energy-hup-gov@varFreq-${queryPerSecond}-sleep1000.txt
 done
 #taskset -apc 12 $(cat server.pid)
