@@ -1,2 +1,0 @@
-Run, qps, Difference
-1, 7200, 4806334497
