@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sys
 import os
 import numpy as np
@@ -22,37 +24,20 @@ class Lat(object):
     def parseSojournTimes(self):
         return self.reqTimes[:, 3]
 
-    def getLatPct(latsFile):
-        assert os.path.exists(latsFile)
-        n = os.path.splitext(latsFile)[0]
-        latsObj = Lat(latsFile)
-        latsName = n + '.txt'
 
-        lLength = [l for l in latsObj.parseLengthSize()]
-        qTimes = [l/1e6 for l in latsObj.parseQueueTimes()]
-        svcTimes = [l/1e6 for l in latsObj.parseSvcTimes()]
-        sjrnTimes = [l/1e6 for l in latsObj.parseSojournTimes()]
-        f = open(latsName,'w')
+def getLatPct(latsFile):
+    assert os.path.exists(latsFile)
+    n = os.path.splitext(latsFile)[0]
+    latsObj = Lat(latsFile)
 
-        f.write('%12s | %12s | %12s | %12s\n\n' \
-                % ('Key Length', 'QueueTimes', 'ServiceTimes', 'SojournTimes'))
-
-        for (le, q, svc, sjrn) in zip(lLength, qTimes, svcTimes, sjrnTimes):
-            f.write("%12s | %12s | %12s | %12s\n" \
-                    % ('%.3f' % le, '%.3f' % q, '%.3f' % svc, '%.3f' % sjrn))
-        f.close()
-        p95 = stats.scoreatpercentile(sjrnTimes, 95)
-        #p99 = stats.scoreatpercentile(sjrnTimes, 99)
-        #maxLat = max(sjrnTimes)
-        return p95
-        ##print "(Sjrn) 95th percentile latency %.3f ms | 99th percentile latency %.3f ms | max latency %.3f ms" \
-               ## % (p95, p99, maxLat)
-        #p95 = stats.scoreatpercentile(svcTimes, 95)
-        #p99 = stats.scoreatpercentile(svcTimes, 99)
-        #maxLat = max(sjrnTimes)
-        #print "(Svc) 95th percentile latency %.3f ms | 99th percentile latency %.3f ms | max latency %.3f ms" \
-         #       % (p95, p99, maxLat)
-        
-
-
+    lLength = [l for l in latsObj.parseLengthSize()]
+    qTimes = [l/1e6 for l in latsObj.parseQueueTimes()]
+    svcTimes = [l/1e6 for l in latsObj.parseSvcTimes()]
+    sjrnTimes = [l/1e6 for l in latsObj.parseSojournTimes()]
+    
+    p95 = stats.scoreatpercentile(sjrnTimes, 95)
+    p99 = stats.scoreatpercentile(sjrnTimes, 99)
+    maxLat = max(sjrnTimes)
+    print(p95)
+    return p95
         
