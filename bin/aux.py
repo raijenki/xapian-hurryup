@@ -34,8 +34,8 @@ def disableall():
                 print("[SYS/cpu] Disabling core " +  str(i))
 
 def enable(cpu):
-    filePath = "/sys/devices/system/cpu/cpu" + str(cpu) + "/online"    
+    filePath = "/sys/devices/system/cpu/cpu" + str(int(cpu)) + "/online"    
     with open(filePath, 'w') as cpuFile: 
-        cpuFile.write(str(0))
-        print("[SYS/cpu] Enabling core " +  str(i))
+        cpuFile.write(str(1))
+        print("[SYS/cpu] Enabling core " +  str(int(cpu)))
 

@@ -1,3 +1,0 @@
-p95, p99, cpufreq, cpunumber, qps, energyconsumption
-
-5558.544658500001,5822.48331833,1.0GHz,1.0,500,1848879117
