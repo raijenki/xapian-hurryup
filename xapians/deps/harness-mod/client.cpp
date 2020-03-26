@@ -44,7 +44,7 @@
 #include<stdio.h>
 #include<iostream>
 #include<unistd.h>
-
+#include <queue>
 #include <tuple>
 
 bool read_file= false;
@@ -81,13 +81,16 @@ double DQPSLookup::currentQPS() {
         return -1;
     }
     uint64_t currentNs = getCurNs();
-    if(currentNs - startingNs >= (QPStiming.front()->getDuration())*1000*1000*1000) {
+    uint64_t timing_run = QPStiming.front()->getDuration()*1000*1000*1000;
+    uint64_t difference = currentNs - startingNs;
+    // DEBUG: printf("dif: %lu, timing: %lu\n", difference, timing_run);
+
+    if(difference > timing_run) {
+	printf("entered");
         QPStiming.pop();
         if (QPStiming.empty()){
-	    printf("vazio\n");
             return -1;
         }
-	printf("nao trocou: %lu\n",  currentNs - startingNs);
         startingNs = getCurNs();
         return QPStiming.front()->getQPS();
     } else{
