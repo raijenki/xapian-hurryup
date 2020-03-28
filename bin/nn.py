@@ -30,7 +30,7 @@ def buildEnergyModel():
 def norm(x, train_stats):
       return (x - train_stats['mean']) / train_stats['std']
 
-def dataDeadline(db):
+def deadlineData(db):
     db['deadline'] = np.where(db['p95'] > 7, 0, 1)
     db.drop(db[db[' energyconsumption'] < 0].index, inplace=True)
     db[' energyconsumption'] = db[' energyconsumption']/1000000
@@ -66,7 +66,7 @@ def dataDeadline(db):
     normed_train_data = norm(train_dataset)
     return normed_train_data, train_labels
 
-def dataEnergy(db):
+def energyData(db):
     db['deadline'] = np.where(db['p95'] > 7, 0, 1)
 
     # Remove negative energy and transform to kJ
