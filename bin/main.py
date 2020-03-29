@@ -1,7 +1,9 @@
 import csv
 import time
 import subprocess
+import nn
 import numpy as np
+import pandas as pd
 import os
 import db
 import scipy as sp
@@ -22,34 +24,38 @@ qps = [ 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6
 ht = 'off'
 
 def xapian_sched():
-    # Set environment variables
-    os.environ["TBENCH_INPUT"] = "/home/cc/hurryup-dvfs/bin/input.test"
-    os.environ["TBENCH_OUTPUT"] = "home/cc/hurryup-dvfs/bin/output.txt"
-    os.environ["TBENCH_CPID"] = "/home/cc/hurryup-dvfs/xapians/xapian-pure/server.pid"
-    os.environ["TBENCH_KEYSERVICE"] = "/home/cc/hurryup-dvfs/bin/keyservice.txt"
-    os.environ["TBENCH_QPS"] = "5000"
-    os.environ["TBENCH_MINSLEEPNS"] = "100000"
-    os.environ["TBENCH_TERMS_FILE"] = "/home/cc/tailbench.inputs/xapian/terms.in"
-    os.environ["TBENCH_RANDSEED"] = "3"
-    os.environ["TBENCH_MAXREQS"] = "200000"
-    os.environ["TBENCH_WARMUPREQS"] = "100"
-    os.environ["TBENCH_CLIENT_THREADS"] = "10"
+    # Training the neural network
+    db_headers = [ 'p95', 'p99', 'cpufreq', 'cpunumber', 'qps', 'energyconsumption' ]
+    db_dead = pd.read_csv('db.txt', names=db_headers)
+    db_energy = pd.read_csv('db.txt', names=db_headers)
+    deadline_data, deadline_labels = nn.deadlineData(db_dead)
+    energy_data, energy_labels = nn.energyData(db_energy)
+    print("Training deadline model")
+    #deadlineModel = nn.buildDeadlineModel(deadline_data, deadline_labels)
+    print("Training energy model")
+    #energyModel = nn.buildEnergyModel(energy_data, energy_labels)
+    print("Success!")
+
     
     # Set the command line to start Mod-Xapian
-    nservers = 12
-    cmdLine = "./xapian_integrated -n " + str(int(nservers)) + " -d ${DATA_ROOT}/xapian/wiki -r 1000000000"
-    process = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE)
+    process = subprocess.Popen(["./xapian_init.sh"], shell=True)
+    while process.poll() is None:
+        print("Active!")
+        time.sleep(10)
+    print("Process done!")
+    #cmdLine = "sudo ./xapian_integrated -n " + str(int(nservers)) + " -d ${DATA_ROOT}/xapian/wiki -r 1000000000"
+    #process = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, env=os.environ)
     # Sleep for 4 seconds while it's greenlighting the server
-    time.sleep(4)
+    #time.sleep(4)
 
     # Scheduler
-    while(process): 
-        with open(os.getenv("TBENCH_OUTPUT")) as csvfile:
-            csvReader = csv.reader(csvfile, delimiter=',')
-            lines = len(list(reader))
-            print("Number of lines now is: " + lines)
-        
-        time.sleep(1)
+    #while(process.returncode != 0): 
+    #    with open(os.getenv("TBENCH_OUTPUT")) as csvfile:
+    #        csvReader = csv.reader(csvfile, delimiter=',')
+    #        lines = len(list(reader))
+    #        print("Number of lines now is: " + lines)
+    #    
+    #    time.sleep(1)
 
 
 def xapian_simul():
