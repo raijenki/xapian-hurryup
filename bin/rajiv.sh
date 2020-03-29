@@ -1,10 +1,10 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source ${DIR}/../deps/configs.sh
+source ${DIR}/../xapians/deps/configs.sh
 
 export TBENCH_INPUT=/home/cc/hurryup-dvfs/bin/xapian.input
-export TBENCH_OUTPUT=/home/cc/tmp.txt
+export TBENCH_OUTPUT=/home/cc/hurryup-dvfs/output.txt
 export TBENCH_CPID=/home/cc/hurryup-dvfs/xapians/xapian-pure/server.pid
 export TBENCH_KEYSERVICE=/home/cc/keyservice.txt
 export TBENCH_QPS=5000

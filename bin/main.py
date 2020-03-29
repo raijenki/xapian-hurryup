@@ -38,10 +38,10 @@ def xapian_sched():
 
     
     # Set the command line to start Mod-Xapian
-    process = subprocess.Popen(["./xapian_init.sh"], shell=True)
+    process = subprocess.Popen(["sudo ./rajiv.sh"], shell=True)
     while process.poll() is None:
         print("Active!")
-        time.sleep(10)
+        time.sleep(1)
     print("Process done!")
     #cmdLine = "sudo ./xapian_integrated -n " + str(int(nservers)) + " -d ${DATA_ROOT}/xapian/wiki -r 1000000000"
     #process = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, env=os.environ)
