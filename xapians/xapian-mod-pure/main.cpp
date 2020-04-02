@@ -81,11 +81,11 @@ int main(int argc, char* argv[]) {
 	    //printf("Thread on core %d", coreNumber);
 	    // For hurry-up purposes: BEGGININGa
 	    //fprintf(cores, "core %d created\n", coreNumber);
-	    CPU_ZERO(&cpuset);
-	    CPU_SET(coreNumber, &cpuset);
-	    pthread_setaffinity_np(threads[i], sizeof(cpu_set_t), &cpuset);
+	    //CPU_ZERO(&cpuset);
+	    //CPU_SET(coreNumber, &cpuset);
+	    //pthread_setaffinity_np(threads[i], sizeof(cpu_set_t), &cpuset);
 	    //printf("map %d ", coreNumber);
-	    coreNumber = coreNumber + 2;
+	    //coreNumber = coreNumber + 2;
 
 	    // For hurry-up purposes: ENDING
         }

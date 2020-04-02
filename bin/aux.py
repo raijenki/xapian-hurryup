@@ -26,7 +26,7 @@ def energy():
     return value
 
 def disableall():
-    for i in range(1, psutil.cpu_count(logical=False)):
+    for i in range(19, psutil.cpu_count(logical=False)):
         if(i%2 == 0):
             filePath = "/sys/devices/system/cpu/cpu" + str(i) + "/online"    
             with open(filePath, 'w') as cpuFile: 

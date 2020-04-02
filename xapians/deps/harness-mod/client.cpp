@@ -78,19 +78,23 @@ DQPSLookup::DQPSLookup(){
 
 double DQPSLookup::currentQPS() {
     if (QPStiming.empty()) {
+	//exit(EXIT_SUCCESS);
         return -1;
     }
     uint64_t currentNs = getCurNs();
     uint64_t timing_run = QPStiming.front()->getDuration()*1000*1000*1000;
     uint64_t difference = currentNs - startingNs;
-    // DEBUG: printf("dif: %lu, timing: %lu\n", difference, timing_run);
+    //printf("dif: %lu\n", timing_run);
 
-    if(difference > timing_run) {
-	printf("entered");
+    if(difference >= timing_run) {
+	//printf("entered");
         QPStiming.pop();
         if (QPStiming.empty()){
+	    //printf("entered 2");
+	    exit(EXIT_SUCCESS);
             return -1;
         }
+	//printf("Entered 3");
         startingNs = getCurNs();
         return QPStiming.front()->getQPS();
     } else{
@@ -153,14 +157,14 @@ Client::Client(int _nthreads) : dqpsLookup() {
     lambda = getOpt<double>("TBENCH_QPS", 1000.0) * 1e-9;
     
     std::string outputFile = getOpt<std::string>("TBENCH_OUTPUT","/home/cc/hurryup-dvfs/bin/rps.txt");
-    std::string outputFile_keyservice = getOpt<std::string>("TBENCH_KEYSERVICE","/home/cc/hurryup-dvfs/bin/percentil.txt");
+    //std::string outputFile_keyservice = getOpt<std::string>("TBENCH_KEYSERVICE","/home/cc/hurryup-dvfs/bin/percentil.txt");
     //FILE* 
     fileOut = fopen(outputFile.c_str(), "w");
-    fileOut_keyservice = fopen(outputFile_keyservice.c_str(), "w");
-    fprintf(fileOut_keyservice,"%s %s %s %s\n", "keylength","QueueTimes","ServiceTimes","SojournTimes");
+    //fileOut_keyservice = fopen(outputFile_keyservice.c_str(), "w");
+   // fprintf(fileOut_keyservice,"%s %s %s %s\n", "keylength","QueueTimes","ServiceTimes","SojournTimes");
     fprintf(fileOut,"%s, %s, %s, %s, %s \n", "rps", "q90", "q95", "q99", "timestampNs");
     fflush(fileOut);
-    fflush(fileOut_keyservice);
+    //fflush(fileOut_keyservice);
     
     dist = nullptr; // Will get initialized in startReq()
     startedReqs = 0;

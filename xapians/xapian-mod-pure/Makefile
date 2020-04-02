@@ -1,6 +1,6 @@
 
 # Build settings
-TBENCH_PATH = ../deps/harness-mod
+TBENCH_PATH = ../deps/harness
 
 TBENCH_INC = $(TBENCH_PATH)/tbench_client.h $(TBENCH_PATH)/tbench_server.h
 

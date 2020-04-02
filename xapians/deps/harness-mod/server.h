@@ -39,16 +39,18 @@ class Server {
 
         uint64_t finishedReqs;
         uint64_t maxReqs;
-        uint64_t warmupReqs;
+        //unsigned long long int maxReqs;
+	uint64_t warmupReqs;
 
         std::vector<ReqInfo> reqInfo; // Request info for each thread 
 
     public:
         Server(int nthreads) {
             finishedReqs = 0;
-            //maxReqs = 1ULL << 30;
-            maxReqs = getOpt("TBENCH_MAXREQS", 18446744073);
-            warmupReqs = getOpt("TBENCH_WARMUPREQS", 1000);
+            maxReqs = 1ULL << 30 ;
+            //maxReqs = getOpt("TBENCH_MAXREQS", 0);
+            //warmupReqs = 1000;
+	    warmupReqs = getOpt("TBENCH_WARMUPREQS", 0);
             reqInfo.resize(nthreads);
         }
 

@@ -17,8 +17,9 @@ sys.path.append('/home/cc/hurryup-dvfs/bin')
 # Frequencies for the Skylake Processor
 ufreqs = [ '1.0GHz', '1.2GHz', '1.3GHz', '1.5GHz', '1.7GHz', '1.9GHz', '2.1GHz', '2.3GHz', '2.5GHz' ]
 # Even CPUs for server-side processing (integrated mode)
-cpus = [ 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 ]
+#cpus = [ 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 ]
 # QPS tests
+#qps = [ 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000 ]
 qps = [ 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000 ]
 # Hyperthreading
 ht = 'off'
