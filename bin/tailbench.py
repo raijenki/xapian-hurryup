@@ -1,5 +1,5 @@
 import subprocess
-import aux
+import helper
 import time 
 import os 
 import signal
