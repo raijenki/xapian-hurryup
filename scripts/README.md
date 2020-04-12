@@ -1,4 +1,5 @@
 ## Auxiliar folder
-* **graphs**: Generation of graphics shown in this work
+* **graphs**: Generation of (some) graphics shown in this work.
+* **helpers**: General purpose scripts
 * **msrfreq**: Contain example code to change frequency through model specific registers (MSR)
-* **scripts**: General purpose scripts
+* **rapl**: Read energy from registers, etc.
